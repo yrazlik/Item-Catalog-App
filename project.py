@@ -174,8 +174,10 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    print(url)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+    print(result['status'])
     if result['status'] == '200':
         # Reset the user's sesson.
         del login_session['access_token']
@@ -263,9 +265,10 @@ def showItems(catalog_name):
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/')
 def showItemDetail(catalog_name, item_name):
     catalog = session.query(Catalog).filter_by(name=catalog_name).one()
-    creator = getUserInfo(catalog.user_id)
     item = session.query(MenuItem).filter_by(
         catalog_id=catalog.id, name=item_name).one()
+    creator = getUserInfo(item.user_id)
+    
     if 'username' not in login_session or creator.id != login_session['user_id']:
         return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator)
     else:
