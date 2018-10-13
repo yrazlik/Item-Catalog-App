@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Catalog, MenuItem, User
 from flask import session as login_session
@@ -188,6 +188,17 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+# Show all catalogs
+@app.route('/')
+@app.route('/catalog/')
+def showCatalogs():
+    print('showCatalogs')
+    catalogs = session.query(Catalog).order_by(asc(Catalog.name))
+    items = session.query(MenuItem).order_by(desc(MenuItem.create_date))
+    if 'username' not in login_session:
+        return render_template('publicrestaurants.html', catalogs=catalogs, items=items)
+    else:
+        return render_template('restaurants.html', catalogs=catalogs, items=items)
 
 # JSON APIs to view Catalog Information
 @app.route('/catalog/<int:catalog_id>/menu/JSON')
@@ -206,18 +217,7 @@ def catalogsJSON():
 @app.route('/items.json')
 def itemsJSON():
     items = session.query(MenuItem).all()
-    return jsonify(catalogs=[r.serialize for r in items])
-
-# Show all catalogs
-@app.route('/')
-@app.route('/catalog/')
-def showCatalogs():
-    print('showCatalogs')
-    catalogs = session.query(Catalog).order_by(asc(Catalog.name))
-    if 'username' not in login_session:
-        return render_template('publicrestaurants.html', restaurants=catalogs)
-    else:
-        return render_template('restaurants.html', restaurants=catalogs)
+    return jsonify(items=[r.serialize for r in items])
 
 
 @app.route('/catalog/new/', methods=['GET', 'POST'])
@@ -226,9 +226,9 @@ def newCatalog():
     return """<p>ASDF</p>"""
 
 
-@app.route('/restaurant/<int:restaurant_id>/')
-@app.route('/restaurant/<int:restaurant_id>/menu/')
-def showMenu(restaurant_id):
+@app.route('/restaurant/<int:catalog_id>/')
+@app.route('/restaurant/<int:catalog_id>/menu/')
+def showMenu(catalog_id):
     print('showMenu')
     return """<p>ASDF</p>"""
 

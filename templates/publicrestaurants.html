@@ -12,7 +12,7 @@
 	<div class="row banner main">
 		<div class="col-md-1"></div>
 		<div class="col-md-11 padding-none">
-			<h1>Restaurants</h1>
+			<h1>Catalogs</h1>
 		</div>
 	</div>
 
@@ -39,15 +39,40 @@
 		</div>
 		<div class="col-md-1"></div>
 	</div>
-	{% for restaurant in restaurants %}
-		<a href = "{{url_for('showMenu', restaurant_id = restaurant.id)}}">
+	{% for catalog in catalogs %}
+		<a href = "{{url_for('showMenu', catalog_id = catalog.id)}}">
 			<div class="row">
 				<div class="col-md-1"></div>
 					<div class="col-md-10 restaurant-list">
-						<h3>{{restaurant.name}}</h3>
+						<h3>{{catalog.name}}</h3>
 					</div>
 				<div class="col-md-1"></div>
 			</div>
 		</a>
 	{% endfor %}
+
+<div class="row divider blue margin-top-20">
+	<div class="col-md-12"></div>
+</div>
+
+<div class="row banner main">
+	<div class="col-md-1"></div>
+	<div class="col-md-11 padding-none">
+		<h1>Latest Items</h1>
+	</div>
+</div>
+
+<div class="margin-top-20">
+	{% for item in items %}
+		<a href = "#">
+			<div class="row">
+				<div class="col-md-1"></div>
+				<div class="col-md-10 restaurant-list">
+					<h3>{{item.name}}</h3>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+		</a>
+	{% endfor %}
+</div>
 {% endblock %}
