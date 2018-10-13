@@ -204,9 +204,9 @@ def showCatalogs():
     catalogs = session.query(Catalog).order_by(asc(Catalog.name))
     items = session.query(MenuItem).order_by(desc(MenuItem.create_date))
     if 'username' not in login_session:
-        return render_template('publicrestaurants.html', catalogs=catalogs, items=items)
+        return render_template('publiccatalogs.html', catalogs=catalogs, items=items)
     else:
-        return render_template('restaurants.html', catalogs=catalogs, items=items)
+        return render_template('catalogs.html', catalogs=catalogs, items=items)
 
 # JSON APIs to view Catalog Information
 @app.route('/catalog/<int:catalog_id>/menu/JSON')
