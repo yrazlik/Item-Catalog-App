@@ -43,7 +43,7 @@
 </div>
 	
 {% for catalog in catalogs %}
-	<a href = "{{url_for('showMenu', catalog_id = catalog.id)}}">
+	<a href = "{{url_for('showItems', catalog_name = catalog.name)}}">
 		<div class="row">
 			<div class="col-md-1"></div>
 			<div class="col-md-10 restaurant-list">
@@ -71,7 +71,7 @@
 			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-10 restaurant-list">
-					<h3>{{item.name}}</h3>
+					<h3>{{item.name}} ({{item.catalog.name}})</h3>
 				</div>
 				<div class="col-md-1"></div>
 			</div>

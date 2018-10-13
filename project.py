@@ -226,13 +226,25 @@ def newCatalog():
     return """<p>ASDF</p>"""
 
 
-@app.route('/restaurant/<int:catalog_id>/')
-@app.route('/restaurant/<int:catalog_id>/menu/')
-def showMenu(catalog_id):
-    print('showMenu')
-    return """<p>ASDF</p>"""
+@app.route('/catalog/<string:catalog_name>/')
+@app.route('/catalog/<string:catalog_name>/items/')
+def showItems(catalog_name):
+    catalog = session.query(Catalog).filter_by(name=catalog_name).one()
+    creator = getUserInfo(catalog.user_id)
+    items = session.query(MenuItem).filter_by(
+        catalog_id=catalog.id).all()
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator)
+    else:
+        return render_template('menu.html', items=items, catalog=catalog, creator=creator)
 
+@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
+def editMenuItem(catalog_id, menu_id):
+    return """<p>asasda</p>"""
 
+@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
+def deleteMenuItem(catalog_id, menu_id):
+    return """<p>asasda</p>"""
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

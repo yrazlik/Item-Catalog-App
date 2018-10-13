@@ -44,4 +44,22 @@ menuItem1 = MenuItem(user_id=1, name="Shoes", description="You hit the ball with
 session.add(menuItem1)
 session.commit()
 
+catalog2 = Catalog(user_id=1, name="Basketball")
+
+session.add(catalog2)
+session.commit()
+
+menuItem3 = MenuItem(user_id=1, name="Jump", description="A Jump",
+                     price="$9.50", course="Item", catalog=catalog2, create_date=datetime.datetime.now())
+
+session.add(menuItem3)
+session.commit()
+
+
+menuItem4 = MenuItem(user_id=1, name="Basketball Shoes", description="Good For Jumping",
+                     price="$9.99", course="Item", catalog=catalog2, create_date=datetime.datetime.now())
+
+session.add(menuItem4)
+session.commit()
+
 print "added menu items!"
