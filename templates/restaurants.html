@@ -30,18 +30,6 @@
     {% endwith %}
 </div>
 	
-<div class="row padding-top padding-bottom">
-	<div class="col-md-1"></div>
-	<div class="col-md-10 padding-none">
-		<a href="{{url_for('newCatalog')}}">
-			<button class="btn btn-default" id="new-restaurant">
-				<span aria-hidden="true"></span>Add Catalog
-			</button>
-		</a>
-	</div>
-	<div class="col-md-1"></div>
-</div>
-	
 {% for catalog in catalogs %}
 	<a href = "{{url_for('showItems', catalog_name = catalog.name)}}">
 		<div class="row">
@@ -63,6 +51,18 @@
 	<div class="col-md-11 padding-none">
 		<h1>Latest Items</h1>
 	</div>
+</div>
+
+<div class="row padding-top padding-bottom">
+	<div class="col-md-1"></div>
+	<div class="col-md-10 padding-none">
+		<a href="{{url_for('newItem')}}">
+			<button class="btn btn-default" id="new-restaurant">
+				<span aria-hidden="true"></span>Add Item
+			</button>
+		</a>
+	</div>
+	<div class="col-md-1"></div>
 </div>
 
 <div class="margin-top-20">

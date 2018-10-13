@@ -5,6 +5,8 @@ from database_setup import Base, Catalog, MenuItem, User
 from flask import session as login_session
 import random
 import string
+import time
+import datetime
 
 # IMPORTS FOR THIS STEP
 from oauth2client.client import flow_from_clientsecrets
@@ -31,6 +33,7 @@ session = DBSession()
 
 
 # Create anti-forgery state token
+@app.route('/login/')
 @app.route('/login')
 def showLogin():
     state = ''.join(
@@ -39,6 +42,7 @@ def showLogin():
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
 
+@app.route('/gconnect/', methods=['POST'])
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -158,6 +162,7 @@ def getUserID(email):
 # DISCONNECT - Revoke a current user's token and reset their login_session
 
 
+@app.route('/gdisconnect/')
 @app.route('/gdisconnect')
 def gdisconnect():
         # Only disconnect a connected user.
@@ -190,6 +195,7 @@ def gdisconnect():
 
 # Show all catalogs
 @app.route('/')
+@app.route('/catalog')
 @app.route('/catalog/')
 def showCatalogs():
     print('showCatalogs')
@@ -220,12 +226,28 @@ def itemsJSON():
     return jsonify(items=[r.serialize for r in items])
 
 
-@app.route('/catalog/new/', methods=['GET', 'POST'])
-def newCatalog():
-    print('newCatalog')
-    return """<p>ASDF</p>"""
+@app.route('/item/new/', methods=['GET', 'POST'])
+def newItem():
+    catalogs = session.query(Catalog).all()
+    for catalog in catalogs:
+        print(catalog.name)
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        selectedCatalogDropdown = request.form.get('category')
+        selectedCatalogId = str(selectedCatalogDropdown)
+        selectedCatalog = session.query(Catalog).filter_by(id=int(selectedCatalogId)).one()
 
+        newItem = MenuItem(user_id=login_session['user_id'], name=request.form['name'], description=request.form['description'],
+                     price="", course="Item", catalog=selectedCatalog, create_date=datetime.datetime.now())
+        session.add(newItem)
+        flash('New Item %s Successfully Created' % newItem.name)
+        session.commit()
+        return redirect(url_for('showCatalogs'))
+    else:
+        return render_template('newmenuitem.html', catalogs=catalogs)
 
+@app.route('/catalog/<string:catalog_name>')
 @app.route('/catalog/<string:catalog_name>/')
 @app.route('/catalog/<string:catalog_name>/items/')
 def showItems(catalog_name):
@@ -238,6 +260,7 @@ def showItems(catalog_name):
     else:
         return render_template('menu.html', items=items, catalog=catalog, creator=creator)
 
+@app.route('/catalog/<string:catalog_name>/<string:item_name>')
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/')
 def showItemDetail(catalog_name, item_name):
     catalog = session.query(Catalog).filter_by(name=catalog_name).one()
@@ -249,10 +272,12 @@ def showItemDetail(catalog_name, item_name):
     else:
         return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator)
 
+@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit/', methods=['GET', 'POST'])
 @app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
 def editMenuItem(catalog_id, menu_id):
     return """<p>asasda</p>"""
 
+@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/delete/', methods=['GET', 'POST'])
 @app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
 def deleteMenuItem(catalog_id, menu_id):
     return """<p>asasda</p>"""
