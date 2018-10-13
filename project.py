@@ -149,6 +149,7 @@ def createUser(login_session):
 
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
+    print('User is: ' + user.name + " --- " + str(user.id))
     return user
 
 
@@ -198,7 +199,6 @@ def gdisconnect():
 @app.route('/catalog')
 @app.route('/catalog/')
 def showCatalogs():
-    print('showCatalogs')
     catalogs = session.query(Catalog).order_by(asc(Catalog.name))
     items = session.query(MenuItem).order_by(desc(MenuItem.create_date))
     if 'username' not in login_session:
@@ -229,8 +229,7 @@ def itemsJSON():
 @app.route('/item/new/', methods=['GET', 'POST'])
 def newItem():
     catalogs = session.query(Catalog).all()
-    for catalog in catalogs:
-        print(catalog.name)
+    
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
