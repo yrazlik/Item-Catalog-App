@@ -238,6 +238,17 @@ def showItems(catalog_name):
     else:
         return render_template('menu.html', items=items, catalog=catalog, creator=creator)
 
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/')
+def showItemDetail(catalog_name, item_name):
+    catalog = session.query(Catalog).filter_by(name=catalog_name).one()
+    creator = getUserInfo(catalog.user_id)
+    item = session.query(MenuItem).filter_by(
+        catalog_id=catalog.id, name=item_name).one()
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator)
+    else:
+        return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator)
+
 @app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
 def editMenuItem(catalog_id, menu_id):
     return """<p>asasda</p>"""
