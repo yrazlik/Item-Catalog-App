@@ -7,8 +7,8 @@
 		<div class="menu-item">
 			<h3>{{item.name}}</h3>
 			<p>{{item.description}}</p>
-			<a href='{{url_for('editMenuItem', catalog_id = catalog.id, menu_id=item.id ) }}'>Edit</a> | 
-			<a href='{{url_for('deleteMenuItem', catalog_id = catalog.id, menu_id=item.id ) }}'>Delete</a>
+			<a href='{{url_for('editMenuItem', catalog_name = catalog.name, item_name=item.name ) }}'>Edit</a> | 
+			<a href='{{url_for('deleteMenuItem', catalog_name = catalog.name, item_name=item.name ) }}'>Delete</a>
 		</div>
 	</div>
 </div>

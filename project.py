@@ -274,15 +274,28 @@ def showItemDetail(catalog_name, item_name):
     else:
         return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator)
 
-@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit/', methods=['GET', 'POST'])
-@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
-def editMenuItem(catalog_id, menu_id):
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit/', methods=['GET', 'POST'])
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit', methods=['GET', 'POST'])
+def editMenuItem(catalog_name, item_name):
     return """<p>asasda</p>"""
 
-@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/delete/', methods=['GET', 'POST'])
-@app.route('/catalog/<int:catalog_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
-def deleteMenuItem(catalog_id, menu_id):
-    return """<p>asasda</p>"""
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete/', methods=['GET', 'POST'])
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete', methods=['GET', 'POST'])
+def deleteMenuItem(catalog_name, item_name):
+    if 'username' not in login_session:
+        return redirect('/login')
+    catalog = session.query(Catalog).filter_by(name=catalog_name).one()
+    itemToDelete = session.query(MenuItem).filter_by(
+        catalog_id=catalog.id, name=item_name).one()
+    if login_session['user_id'] != itemToDelete.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this item. Please create your own item in order to delete items.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(itemToDelete)
+        session.commit()
+        flash('Item Successfully Deleted')
+        return redirect(url_for('showCatalogs'))
+    else:
+        return render_template('deleteMenuItem.html', item=itemToDelete)
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
