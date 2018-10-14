@@ -24,3 +24,9 @@ In the main page, you will see the categories and latest added items:
 
 Clicking on a category shows you the items under that category:
 > [![Image](img/categoryitems.png)](Image)
+
+Clicking on an item shows you the item detail:
+> [![Image](img/itemdetail.png)](Image)
+
+You can edit or delete item **only if you are authenticated and you are the creator of that item.**
+> [![Image](img/deleteitem.png)](Image)
