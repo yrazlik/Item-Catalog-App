@@ -67,7 +67,7 @@
 
 <div class="margin-top-20">
 	{% for item in items %}
-		<a href = "#">
+		<a href='{{url_for('showItemDetail', catalog_name = item.catalog.name, item_name=item.name ) }}'>
 			<div class="row">
 				<div class="col-md-1"></div>
 				<div class="col-md-10 restaurant-list">
