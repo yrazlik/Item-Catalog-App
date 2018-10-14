@@ -20,3 +20,4 @@ Here are the steps to set up the project environment to run it:
 
 ## How to use:
 In the main page, you will see the categories and latest added items:
+> [![Image](img/mainpage)](Image)
