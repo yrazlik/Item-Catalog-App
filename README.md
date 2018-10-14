@@ -18,3 +18,5 @@ Here are the steps to set up the project environment to run it:
 11. Run ``` python project.py ```
 12. Then open up your browser and type http://localhost:5000
 
+## How to use:
+In the main page, you will see the categories and latest added items:
