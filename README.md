@@ -30,3 +30,6 @@ Clicking on an item shows you the item detail:
 
 You can edit or delete item **only if you are authenticated and you are the creator of that item.**
 > [![Image](img/deleteitem.png)](Image)
+
+You can create a new item **if you are authenticated.**
+> [![Image](img/newitem.png)](Image)
