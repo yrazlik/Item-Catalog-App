@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, request
+from flask import redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Catalog, MenuItem, User
@@ -37,10 +38,12 @@ session = DBSession()
 @app.route('/login')
 def showLogin():
     state = ''.join(
-        random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+        random.choice(
+            string.ascii_uppercase + string.digits) for x in range(32))
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
 
 @app.route('/gconnect/', methods=['POST'])
 @app.route('/gconnect', methods=['POST'])
@@ -51,7 +54,6 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     # Obtain authorization code, now compatible with Python3
-    #request.get_data()
     code = request.data.decode('utf-8')
 
     try:
@@ -99,8 +101,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -131,11 +133,10 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += """ style = "width: 300px; height: 300px;border-radius: 150px;
+    -webkit-border-radius: 150px;-moz-border-radius: 150px;">"""
     flash("you are now logged in as %s" % login_session['username'])
     return output
-
-# User Helper Functions
 
 
 def createUser(login_session):
@@ -196,6 +197,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
 # Show all catalogs
 @app.route('/')
 @app.route('/catalog')
@@ -204,9 +206,11 @@ def showCatalogs():
     catalogs = session.query(Catalog).order_by(asc(Catalog.name))
     items = session.query(MenuItem).order_by(desc(MenuItem.create_date))
     if 'username' not in login_session:
-        return render_template('publiccatalogs.html', catalogs=catalogs, items=items)
+        return render_template(
+            'publiccatalogs.html', catalogs=catalogs, items=items)
     else:
         return render_template('catalogs.html', catalogs=catalogs, items=items)
+
 
 # JSON APIs to view Catalog Information
 @app.route('/catalog/<int:catalog_id>/menu/JSON')
@@ -217,30 +221,37 @@ def catalogMenuJSON(catalog_id):
     return jsonify(MenuItems=[i.serialize for i in items])
 
 
+# catalogs JSON endpoint
 @app.route('/catalog.json')
 def catalogsJSON():
     catalogs = session.query(Catalog).all()
     return jsonify(catalogs=[r.serialize for r in catalogs])
 
+
+# items JSON endpoint
 @app.route('/items.json')
 def itemsJSON():
     items = session.query(MenuItem).all()
     return jsonify(items=[r.serialize for r in items])
 
 
+# create new item
 @app.route('/item/new/', methods=['GET', 'POST'])
 def newItem():
     catalogs = session.query(Catalog).all()
-    
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
         selectedCatalogDropdown = request.form.get('category')
         selectedCatalogId = str(selectedCatalogDropdown)
-        selectedCatalog = session.query(Catalog).filter_by(id=int(selectedCatalogId)).one()
+        selectedCatalog = session.query(Catalog).filter_by(
+            id=int(selectedCatalogId)).one()
 
-        newItem = MenuItem(user_id=login_session['user_id'], name=request.form['name'], description=request.form['description'],
-                     price="", course="Item", catalog=selectedCatalog, create_date=datetime.datetime.now())
+        newItem = MenuItem(user_id=login_session['user_id'],
+                           name=request.form['name'],
+                           description=request.form['description'],
+                           price="", course="Item", catalog=selectedCatalog,
+                           create_date=datetime.datetime.now())
         session.add(newItem)
         flash('New Item %s Successfully Created' % newItem.name)
         session.commit()
@@ -248,6 +259,8 @@ def newItem():
     else:
         return render_template('newmenuitem.html', catalogs=catalogs)
 
+
+# display items
 @app.route('/catalog/<string:catalog_name>')
 @app.route('/catalog/<string:catalog_name>/')
 @app.route('/catalog/<string:catalog_name>/items/')
@@ -257,12 +270,19 @@ def showItems(catalog_name):
     items = session.query(MenuItem).filter_by(
         catalog_id=catalog.id).all()
     if 'username' not in login_session:
-        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator, authenticated=False)
+        return render_template('publicmenu.html', items=items,
+                               catalog=catalog, creator=creator,
+                               authenticated=False)
     elif creator.id != login_session['user_id']:
-        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator, authenticated=True)
+        return render_template('publicmenu.html', items=items,
+                               catalog=catalog, creator=creator,
+                               authenticated=True)
     else:
-        return render_template('menu.html', items=items, catalog=catalog, creator=creator, authenticated=True)
+        return render_template('menu.html', items=items, catalog=catalog,
+                               creator=creator, authenticated=True)
 
+
+# display item detail
 @app.route('/catalog/<string:catalog_name>/<string:item_name>')
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/')
 def showItemDetail(catalog_name, item_name):
@@ -270,16 +290,25 @@ def showItemDetail(catalog_name, item_name):
     item = session.query(MenuItem).filter_by(
         catalog_id=catalog.id, name=item_name).one()
     creator = getUserInfo(item.user_id)
-    
-    if 'username' not in login_session:
-        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=False)
-    elif creator.id != login_session['user_id']:
-        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=True)
-    else:
-        return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=True)
 
-@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit/', methods=['GET', 'POST'])
-@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit', methods=['GET', 'POST'])
+    if 'username' not in login_session:
+        return render_template('publicitemdetail.html', item=item,
+                               catalog=catalog, creator=creator,
+                               authenticated=False)
+    elif creator.id != login_session['user_id']:
+        return render_template('publicitemdetail.html', item=item,
+                               catalog=catalog, creator=creator,
+                               authenticated=True)
+    else:
+        return render_template('itemdetail.html', item=item, catalog=catalog,
+                               creator=creator, authenticated=True)
+
+
+# edits menu item
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit/',
+           methods=['GET', 'POST'])
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/edit',
+           methods=['GET', 'POST'])
 def editMenuItem(catalog_name, item_name):
     catalogs = session.query(Catalog).all()
     if 'username' not in login_session:
@@ -289,25 +318,33 @@ def editMenuItem(catalog_name, item_name):
         catalog_id=catalog.id, name=item_name).one()
     itemCatalogId = itemToEdit.catalog_id
     if login_session['user_id'] != itemToEdit.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this item. Please create your own item in order to delete items.');}</script><body onload='myFunction()''>"
+        return """<script>function myFunction() {alert('You are not
+                   authorized to delete menu items to this item.
+                   Please create your own item in order to delete
+                   items.');}</script><body onload='myFunction()''>"""
     if request.method == 'POST':
         itemToEdit.name = request.form['name']
         itemToEdit.description = request.form['description']
         selectedCatalogDropdown = request.form.get('category')
         selectedCatalogId = str(selectedCatalogDropdown)
-        selectedCatalog = session.query(Catalog).filter_by(id=int(selectedCatalogId)).one()
+        selectedCatalog = session.query(Catalog).filter_by(
+            id=int(selectedCatalogId)).one()
         itemToEdit.category = selectedCatalog
         itemToEdit.catalog_id = selectedCatalogId
-        print("CATALOG!!!!! " + selectedCatalog.name + " --- " + selectedCatalogId)
         session.add(itemToEdit)
         session.commit()
         flash('Item Successfully Edited %s' % itemToEdit.name)
         return redirect(url_for('showCatalogs'))
     else:
-        return render_template('editmenuitem.html', item=itemToEdit, catalogs=catalogs, itemCatalogId=itemCatalogId)
+        return render_template('editmenuitem.html', item=itemToEdit,
+                               catalogs=catalogs, itemCatalogId=itemCatalogId)
 
-@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete/', methods=['GET', 'POST'])
-@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete', methods=['GET', 'POST'])
+
+# deletes menu item
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete/',
+           methods=['GET', 'POST'])
+@app.route('/catalog/<string:catalog_name>/<string:item_name>/delete',
+           methods=['GET', 'POST'])
 def deleteMenuItem(catalog_name, item_name):
     if 'username' not in login_session:
         return redirect('/login')
@@ -315,7 +352,10 @@ def deleteMenuItem(catalog_name, item_name):
     itemToDelete = session.query(MenuItem).filter_by(
         catalog_id=catalog.id, name=item_name).one()
     if login_session['user_id'] != itemToDelete.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this item. Please create your own item in order to delete items.');}</script><body onload='myFunction()''>"
+        return """<script>function myFunction() {alert('You are not
+                   authorized to delete menu items to this item.
+                   Please create your own item in order to delete
+                   items.');}</script><body onload='myFunction()''>"""
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
