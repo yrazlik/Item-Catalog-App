@@ -14,9 +14,8 @@ Here are the steps to set up the project environment to run it:
 7. Run ``` vagrant up ``` to build the VM.
 8. After vagrant is up and running, run ``` vagrant ssh ```.
 9. cd into the project directory: ``` cd /vagrant ```
-10. Load the data using the following command: ``` psql -d news -f newsdata.sql ```
-11. Run ``` python project.py ```
-12. Then open up your browser and type http://localhost:5000
+10. Run ``` python project.py ```
+11. Then open up your browser and type http://localhost:5000
 
 ## How to use:
 In the main page, you will see the categories and latest added items:
