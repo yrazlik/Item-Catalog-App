@@ -256,10 +256,12 @@ def showItems(catalog_name):
     creator = getUserInfo(catalog.user_id)
     items = session.query(MenuItem).filter_by(
         catalog_id=catalog.id).all()
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator)
+    if 'username' not in login_session:
+        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator, authenticated=False)
+    elif creator.id != login_session['user_id']:
+        return render_template('publicmenu.html', items=items, catalog=catalog, creator=creator, authenticated=True)
     else:
-        return render_template('menu.html', items=items, catalog=catalog, creator=creator)
+        return render_template('menu.html', items=items, catalog=catalog, creator=creator, authenticated=True)
 
 @app.route('/catalog/<string:catalog_name>/<string:item_name>')
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/')
@@ -269,10 +271,12 @@ def showItemDetail(catalog_name, item_name):
         catalog_id=catalog.id, name=item_name).one()
     creator = getUserInfo(item.user_id)
     
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator)
+    if 'username' not in login_session:
+        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=False)
+    elif creator.id != login_session['user_id']:
+        return render_template('publicitemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=True)
     else:
-        return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator)
+        return render_template('itemdetail.html', item=item, catalog=catalog, creator=creator, authenticated=True)
 
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/edit/', methods=['GET', 'POST'])
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/edit', methods=['GET', 'POST'])

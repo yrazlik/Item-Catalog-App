@@ -1,6 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
-{% include "header_authenticated.html" %}
+{% if authenticated %}
+	{% include "header_authenticated.html" %}
+{% else %}
+	{% include "header_notauthenticated.html" %}
+{% endif %}
 	
 <div class="row">
 	<div class="col-md-12">
