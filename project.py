@@ -277,7 +277,30 @@ def showItemDetail(catalog_name, item_name):
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/edit/', methods=['GET', 'POST'])
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/edit', methods=['GET', 'POST'])
 def editMenuItem(catalog_name, item_name):
-    return """<p>asasda</p>"""
+    catalogs = session.query(Catalog).all()
+    if 'username' not in login_session:
+        return redirect('/login')
+    catalog = session.query(Catalog).filter_by(name=catalog_name).one()
+    itemToEdit = session.query(MenuItem).filter_by(
+        catalog_id=catalog.id, name=item_name).one()
+    itemCatalogId = itemToEdit.catalog_id
+    if login_session['user_id'] != itemToEdit.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to delete menu items to this item. Please create your own item in order to delete items.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        itemToEdit.name = request.form['name']
+        itemToEdit.description = request.form['description']
+        selectedCatalogDropdown = request.form.get('category')
+        selectedCatalogId = str(selectedCatalogDropdown)
+        selectedCatalog = session.query(Catalog).filter_by(id=int(selectedCatalogId)).one()
+        itemToEdit.category = selectedCatalog
+        itemToEdit.catalog_id = selectedCatalogId
+        print("CATALOG!!!!! " + selectedCatalog.name + " --- " + selectedCatalogId)
+        session.add(itemToEdit)
+        session.commit()
+        flash('Item Successfully Edited %s' % itemToEdit.name)
+        return redirect(url_for('showCatalogs'))
+    else:
+        return render_template('editmenuitem.html', item=itemToEdit, catalogs=catalogs, itemCatalogId=itemCatalogId)
 
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/delete/', methods=['GET', 'POST'])
 @app.route('/catalog/<string:catalog_name>/<string:item_name>/delete', methods=['GET', 'POST'])
@@ -295,7 +318,7 @@ def deleteMenuItem(catalog_name, item_name):
         flash('Item Successfully Deleted')
         return redirect(url_for('showCatalogs'))
     else:
-        return render_template('deleteMenuItem.html', item=itemToDelete)
+        return render_template('deletemenuitem.html', item=itemToDelete)
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
